@@ -7,8 +7,8 @@ class APIBOOK {
   async getAllBook(limit, page, sort) {
     let res = {};
     try {
-      res = await req.get(
-        `/books/getAll?limit=${limit}&page=${page}&sort=asc&sort=${sort}`
+      res = await axios.get(
+        `https://testda-2.onrender.com/books/getAll?limit=${limit}&page=${page}&sort=asc&sort=${sort}`
       );
       return res.data;
     } catch (error) {
