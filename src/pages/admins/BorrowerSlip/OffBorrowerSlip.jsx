@@ -28,6 +28,7 @@ import ModalCreateUpdateBorrowerSlip from "../../../components/ModalCreateBr";
 import ModalDetailBr from "../../../components/ModalDetailBr";
 import { getDetailBr } from "../../../services/OffBorrowerSlipService";
 import { UpdateBr } from "../../../services/OffBorrowerSlipService";
+import Loading from "../../../components/LoadingComponent/Loading";
 const cx = classNames.bind(styles);
 const { RangePicker } = DatePicker;
 const OffBorrowerSlip = () => {
@@ -40,8 +41,10 @@ const OffBorrowerSlip = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [IsLoad, setIsLoad] = useState(false);
 
   const [IdDelete, setIdDelete] = useState();
+
   const ListstateUpdate = [
     {
       name: "Đang mượn",
@@ -64,11 +67,14 @@ const OffBorrowerSlip = () => {
     sort: "price",
   });
   const getAllData = async () => {
+    setIsLoad(true);
+
     const res = await getAll(token);
     if (res.data.length > 10) {
       setPage(res.data.length);
     }
     setData(res.data);
+    setIsLoad(false);
   };
 
   const dataTable = data?.map((product, index) => {
@@ -345,13 +351,13 @@ const OffBorrowerSlip = () => {
       ...getColumnSearchProps("totalAmount"),
     },
     {
-      title: "Ngày trả",
-      dataIndex: "dueDate",
+      title: "Ngày mượn",
+      dataIndex: "createdAt",
 
       render: (_, record) => {
         return (
           <>
-            <p>{moment(record.dueDate).format("DD/MM/YYYY")}</p>
+            <p>{moment(record.createdAt).format("DD/MM/YYYY")}</p>
           </>
         );
       },
@@ -497,18 +503,20 @@ const OffBorrowerSlip = () => {
             </>
           )}
         </div>
-        <Table
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={dataTable}
-          pagination={{
-            pageSize: 10,
-            total: page,
-          }}
-          showSorterTooltip={{
-            target: "sorter-icon",
-          }}
-        />
+        <Loading isLoading={IsLoad}>
+          <Table
+            rowSelection={rowSelection}
+            columns={columns}
+            dataSource={dataTable}
+            pagination={{
+              pageSize: 10,
+              total: page,
+            }}
+            showSorterTooltip={{
+              target: "sorter-icon",
+            }}
+          />
+        </Loading>
       </div>
       <Modal show={showModalUpdate} onHide={handleCloseModal}>
         <Modal.Header closeButton>
@@ -534,7 +542,9 @@ const OffBorrowerSlip = () => {
             <Button onClick={UpdateState} type="primary">
               Cập nhật
             </Button>
-            <Button htmlType="reset">Hủy</Button>
+            <Button htmlType="reset" onClick={handleCloseModal}>
+              Hủy
+            </Button>
           </Space>
         </Modal.Footer>
       </Modal>
