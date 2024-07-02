@@ -1,13 +1,19 @@
 import axios from "axios";
+let api = "";
+console.log("VITE", import.meta.env);
+console.log("Process", process.env);
 
+if (process.env.MODE === "dev") {
+  api = "http://localhost:8017";
+} else {
+  api = "https://testda-2.onrender.com";
+}
 export const req = axios.create({
-  baseURL: `${process.env.REACT_API_URL_BACKEND}`,
+  baseURL: api,
   withCredentials: true,
 });
-console.log(import.meta.env);
-console.log(process.env);
 
 export const axiosJWT = axios.create({
-  baseURL: `${process.env.REACT_API_URL_BACKEND}`,
+  baseURL: api,
   withCredentials: true,
 });
