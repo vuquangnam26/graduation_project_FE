@@ -2,34 +2,23 @@ import classNames from "classnames/bind";
 import styles from "./BookList.module.scss";
 
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEdit,
-  faTrashAlt,
-  faSearch,
-} from "@fortawesome/free-solid-svg-icons";
 import { Modal, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import ModalBookDetail from "./ModalBookDetail";
-import {
-  fetchBooks,
-  selectAllBooks,
-  deleteBook,
-} from "../../../redux/slides/booksSlice";
 
 import { toast } from "react-toastify";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Space, Table } from "antd";
 import Highlighter from "react-highlight-words";
 import ModalForm from "../../../components/ModalUpdateBook";
-import { useMutationHooks } from "../../../hooks/useMutationHook";
 const cx = classNames.bind(styles);
 
 import { FaPen } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { ApiBOOK } from "../../../services/BookService";
+import Loading from "../../../components/LoadingComponent/Loading";
 const BookList = () => {
+  const token = localStorage.getItem("token");
   const [data, setData] = useState([]);
   const [page, setPage] = useState(10);
 
@@ -55,9 +44,9 @@ const BookList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [IsLoad, setIsLoad] = useState(false);
 
   const searchInput = useRef(null);
-  const dispatch = useDispatch();
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -65,6 +54,7 @@ const BookList = () => {
     setSearchedColumn(dataIndex);
   };
   const getAll = async () => {
+    setIsLoad(true);
     const res = await ApiBOOK.getAllBook(
       request.limit,
       request.page,
@@ -74,6 +64,7 @@ const BookList = () => {
       setPage(res.data.length);
     }
     setData(res.data);
+    setIsLoad(false);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -343,7 +334,7 @@ const BookList = () => {
     setReload(!reload);
   };
   const handleDelete = () => {
-    ApiBOOK.DeleteBook(IdDelete)
+    ApiBOOK.DeleteBook(IdDelete, token)
       .then((res) => {
         if (res) {
           toast.success("Xóa sách thành công");
@@ -364,7 +355,7 @@ const BookList = () => {
   const handleDeleteMany = async () => {
     console.log(selectedRowKeys);
     const ids = [...selectedRowKeys];
-    const res = await ApiBOOK.DeleteManyBook(ids);
+    const res = await ApiBOOK.DeleteManyBook(ids, token);
     setReload(!reload);
     selectedRowKeys.length = 0;
 
@@ -387,12 +378,13 @@ const BookList = () => {
             </>
           )}
         </div>
-
-        <Table
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={dataTable}
-        />
+        <Loading isLoading={IsLoad}>
+          <Table
+            rowSelection={rowSelection}
+            columns={columns}
+            dataSource={dataTable}
+          />
+        </Loading>
         <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
           <Modal.Header closeButton>
             <Modal.Title>Xác nhận hủy</Modal.Title>

@@ -2,13 +2,13 @@ import axios from "axios";
 import { createAuthHeader } from "./auth/authHeader";
 import { axiosJWT, req } from "../utils/httpRequest";
 
-const token = localStorage.getItem("token");
+//const token = localStorage.getItem("token");
 class APIBOOK {
   async getAllBook(limit, page, sort) {
     let res = {};
     try {
-      res = await axios.get(
-        `https://testda-2.onrender.com/books/getAll?limit=${limit}&page=${page}&sort=asc&sort=${sort}`
+      res = await req.get(
+        `/books/getAll?limit=${limit}&page=${page}&sort=asc&sort=${sort}`
       );
       return res.data;
     } catch (error) {
@@ -16,9 +16,24 @@ class APIBOOK {
       throw error;
     }
   }
-  async UpdateBook(id, body) {
+
+  async getBooks(limit, page, categoryName, keyword) {
     let res = {};
     try {
+      res = await req.get(
+        `/books/get-by-user?limit=${limit}&page=${page}&categoryName=${categoryName}&keyword=${keyword}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      throw error;
+    }
+  }
+
+  async UpdateBook(id, body, token) {
+    let res = {};
+    try {
+      console.log("token", token)
       res = await axiosJWT.put(
         `/books/update/${id}`,
         body,
@@ -32,7 +47,7 @@ class APIBOOK {
       throw error;
     }
   }
-  async DeleteBook(id) {
+  async DeleteBook(id, token) {
     let res = {};
     try {
       res = await axiosJWT.delete(
@@ -47,7 +62,7 @@ class APIBOOK {
       throw error;
     }
   }
-  async DeleteManyBook(ids) {
+  async DeleteManyBook(ids, token) {
     let res = {};
     try {
       const body = {
@@ -66,7 +81,7 @@ class APIBOOK {
       throw error;
     }
   }
-  async AddBook(body) {
+  async AddBook(body, token) {
     let res = {};
     try {
       res = await axiosJWT.post(

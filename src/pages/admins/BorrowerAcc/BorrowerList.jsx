@@ -11,22 +11,29 @@ import { Modal } from "react-bootstrap";
 
 import { toast } from "react-toastify";
 import { ApiUserBr } from "../../../services/UserBrrowers";
+import Loading from "../../../components/LoadingComponent/Loading";
 
 const cx = classNames.bind(styles);
 
 const BorrowerList = () => {
+  const token = localStorage.getItem("token");
   const [data, setData] = useState([]);
   const [product, setProduct] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [IdDelete, setIdDelete] = useState();
+  const [IsLoad, setIsLoad] = useState(false);
+
   const [request, setRequest] = useState({
     limit: 10,
     page: 0,
     sort: "price",
   });
   const getAllData = async () => {
-    const res = await ApiUserBr.GetAll();
+    setIsLoad(true);
+
+    const res = await ApiUserBr.GetAll(token);
     setData(res.data);
+    setIsLoad(false);
   };
 
   const dataTable = data?.map((product, index) => {
@@ -87,7 +94,7 @@ const BorrowerList = () => {
         state: 1,
       };
     }
-    const res = await ApiUserBr.UpdateState(userid, body);
+    const res = await ApiUserBr.UpdateState(userid, body, token);
     console.log("aa");
     setProduct(res.data);
     setshowModalUpdate(true);
@@ -100,7 +107,7 @@ const BorrowerList = () => {
     setIdDelete(id);
   };
   const handleDeleteAccept = () => {
-    ApiUserBr.DeleteUser(IdDelete)
+    ApiUserBr.DeleteUser(IdDelete, token)
       .then((res) => {
         if (res) {
           toast.success("Xóa tài khoản công");
@@ -116,7 +123,7 @@ const BorrowerList = () => {
   const handleCloseDeleteModal = () => setShowDeleteModal(false);
   const handleDeleteMany = async () => {
     const ids = [...selectedRowKeys];
-    const res = await ApiProduct.deleteProductmany(ids);
+    const res = await ApiProduct.deleteProductmany(ids, token);
 
     setReload(!reload);
     if (res) {
@@ -378,11 +385,13 @@ const BorrowerList = () => {
             </>
           )}
         </div>
-        <Table
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={dataTable}
-        />
+        <Loading isLoading={IsLoad}>
+          <Table
+            rowSelection={rowSelection}
+            columns={columns}
+            dataSource={dataTable}
+          />
+        </Loading>
         <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
           <Modal.Header closeButton>
             <Modal.Title>Xác nhận xóa</Modal.Title>
