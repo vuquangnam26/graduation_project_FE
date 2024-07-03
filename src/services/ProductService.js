@@ -19,8 +19,8 @@ class ProductAPI {
   async getDetailProduct(id) {
     let res = {};
     try {
-      res = await axios.get(
-        `${process.env.REACT_API_URL_BACKEND}/products/getDetail/${id}`
+      res = await axios.axiosJWT(
+        `/products/getDetail/${id}`
       );
       return res.data;
     } catch (error) {

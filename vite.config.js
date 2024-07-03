@@ -33,7 +33,8 @@ export default defineConfig({
   plugins: [
     react(),
     EnvironmentPlugin([
-      "REACT_API_URL_BACKEND",
+      "VITE_API_BACKEND",
+      "VITE_API_LOCAL",
       "VITE_API_KEY",
       "VITE_AUTH_DOMAIN",
       "VITE_PROJECT_ID",

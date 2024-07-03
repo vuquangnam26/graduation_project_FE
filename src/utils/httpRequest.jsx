@@ -4,9 +4,9 @@ console.log("VITE", import.meta.env);
 console.log("Process", process.env);
 
 if (process.env.MODE === "dev") {
-  api = "http://localhost:8017";
+  api = `${process.env.VITE_API_LOCAL}`;
 } else {
-  api = "https://testda-2.onrender.com";
+  api = `${process.env.VITE_API_BACKEND}`;
 }
 export const req = axios.create({
   baseURL: api,
@@ -17,3 +17,4 @@ export const axiosJWT = axios.create({
   baseURL: api,
   withCredentials: true,
 });
+console.log("API", api);
